@@ -1,4 +1,4 @@
-// Polygon Mainnet addresses
+// Polygon Mainnet configuration
 module.exports = {
   // Network
   CHAIN_ID: 137,
@@ -22,14 +22,4 @@ module.exports = {
       symbol: 'EURe',
     },
   },
-
-  // QuickSwap Router V2 on Polygon
-  QUICKSWAP_ROUTER: '0xa5E0829CaCEd8fFDD4De3c43696c57F7D7A678ff',
-
-  // Wrapped MATIC (for intermediate routing if needed)
-  WMATIC: '0x0d500B1d8E8eF31E21C99d1Db9A6444d3ADf1270',
-
-  // Swap settings
-  SLIPPAGE_BPS: 50, // 0.5%
-  DEADLINE_SECONDS: 300, // 5 minutes
 };
