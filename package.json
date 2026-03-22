@@ -1,7 +1,7 @@
 {
   "name": "polygon-eure-swapper",
   "version": "1.0.0",
-  "description": "Swap USDT/USDC <> EURe on Polygon via Uniswap V3 / QuickSwap",
+  "description": "Swap USDT/USDC <> EURe on Polygon via QuickSwap V2",
   "main": "swap.js",
   "scripts": {
     "swap": "node swap.js",
@@ -9,7 +9,7 @@
     "check-balance": "node scripts/check-balance.js"
   },
   "dependencies": {
-    "@uniswap/v3-sdk": "^3.13.1",
+    "dotenv": "^16.4.7",
     "ethers": "^6.13.4"
   }
 }

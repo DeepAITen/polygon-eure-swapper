@@ -3,3 +3,4 @@ node_modules/
 *.vault
 *.vault.bak
 .vault_password
+package-lock.json

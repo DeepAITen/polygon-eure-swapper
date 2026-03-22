@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+require('dotenv').config();
 const readline = require('readline');
 const SwapperVault = require('../src/vault');
 

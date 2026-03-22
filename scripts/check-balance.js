@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+require('dotenv').config();
 const { ethers } = require('ethers');
 const SwapperVault = require('../src/vault');
 const config = require('../src/config');
