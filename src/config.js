@@ -2,7 +2,7 @@
 module.exports = {
   // Network
   CHAIN_ID: 137,
-  RPC_URL: process.env.POLYGON_RPC_URL || 'https://polygon-rpc.com',
+  RPC_URL: process.env.POLYGON_RPC_URL || 'https://polygon-bor-rpc.publicnode.com',
 
   // Tokens on Polygon
   TOKENS: {

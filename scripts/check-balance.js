@@ -19,7 +19,7 @@ async function main() {
 
   const vault = new SwapperVault(vaultPassword);
   const secrets = vault.load();
-  const walletAddress = secrets.wallet.address;
+  const walletAddress = secrets.wallet_address;
 
   const provider = new ethers.JsonRpcProvider(config.RPC_URL);
 
