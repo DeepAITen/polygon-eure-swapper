@@ -4,3 +4,4 @@ node_modules/
 *.vault.bak
 .vault_password
 package-lock.json
+.env
