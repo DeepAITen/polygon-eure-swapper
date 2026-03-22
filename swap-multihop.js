@@ -8,13 +8,12 @@ const ERC20_ABI = [
   'function balanceOf(address) view returns (uint256)',
   'function allowance(address owner, address spender) view returns (uint256)',
   'function approve(address spender, uint256 amount) returns (bool)',
-  'function decimals() view returns (uint8)',
 ];
 
 // Uniswap V3 SwapRouter
 const UNISWAP_V3_ROUTER = '0xE592427A0AEce92De3Edee1F18E0157C05861564';
 const UNISWAP_V3_ROUTER_ABI = [
-  'function exactInputSingle((address tokenIn, address tokenOut, uint24 fee, address recipient, uint256 deadline, uint256 amountIn, uint256 amountOutMinimum, uint160 sqrtPriceLimitX96)) external payable returns (uint256 amountOut)',
+  'function exactInput((bytes path, address recipient, uint256 deadline, uint256 amountIn, uint256 amountOutMinimum)) external payable returns (uint256 amountOut)',
 ];
 
 function parseArgs() {
@@ -42,18 +41,30 @@ function parseArgs() {
   }
 
   if (!parsed.from || !parsed.to || !parsed.amount) {
-    console.log('Usage: node swap-direct.js --from USDT --to EURe --amount 10 [--dry-run]');
+    console.log('Usage: node swap-multihop.js --from USDT --to EURe --amount 10 [--dry-run]');
     process.exit(1);
   }
 
   return parsed;
 }
 
-async function main() {
-  const args = parseArgs();
+// Encode path for multi-hop swap
+function encodePath(tokens, fees) {
+  let path = '0x';
+  for (let i = 0; i < tokens.length; i++) {
+    path += tokens[i].slice(2); // Remove 0x
+    if (i < fees.length) {
+      path += fees[i].toString(16).padStart(6, '0'); // Fee as 3 bytes
+    }
+  }
+  return path;
+}
 
-  const tokenInConfig = config.TOKENS[args.from];
-  const tokenOutConfig = config.TOKENS[args.to];
+async function main() {
+  const parsed = parseArgs();
+  
+  const tokenInConfig = config.TOKENS[parsed.from];
+  const tokenOutConfig = config.TOKENS[parsed.to];
 
   if (!tokenInConfig || !tokenOutConfig) {
     console.error('Token invalide. Disponibles: USDT, USDC, EURe');
@@ -75,6 +86,7 @@ async function main() {
 
   console.log(`Wallet:  ${wallet.address}`);
   console.log(`Swap:    ${args.amount} ${args.from} -> ${args.to}`);
+  console.log(`Route:   ${args.from} -> USDC -> ${args.to}`);
   console.log(`Mode:    ${args.dryRun ? 'DRY RUN' : 'LIVE'}`);
   console.log('');
 
@@ -110,27 +122,24 @@ async function main() {
     console.log('Approved!\n');
   }
 
-  // Swap params
+  // Build multi-hop path: USDT -> USDC (fee 500) -> EURe (fee 500)
+  const path = encodePath(
+    [config.TOKENS.USDT.address, config.TOKENS.USDC.address, config.TOKENS.EURe.address],
+    [500, 500] // 0.05% for both hops
+  );
+
   const router = new ethers.Contract(UNISWAP_V3_ROUTER, UNISWAP_V3_ROUTER_ABI, wallet);
 
-  // Try multiple fee tiers (500 = 0.05%, 3000 = 0.3%, 10000 = 1%)
-  const feeTiers = [500, 3000, 10000];
-  
-  console.log(`Testing fee tiers: ${feeTiers.join(', ')}\n`);
-  
   const params = {
-    tokenIn: tokenInConfig.address,
-    tokenOut: tokenOutConfig.address,
-    fee: 500, // Start with 0.05% (best for stablecoins)
+    path: path,
     recipient: wallet.address,
-    deadline: Math.floor(Date.now() / 1000) + 300, // 5 min
+    deadline: Math.floor(Date.now() / 1000) + 300,
     amountIn: amountIn,
-    amountOutMinimum: 0, // No slippage protection for now (testing)
-    sqrtPriceLimitX96: 0,
+    amountOutMinimum: 0,
   };
 
-  console.log('Sending swap...');
-  const swapTx = await router.exactInputSingle(params);
+  console.log('Sending multi-hop swap...');
+  const swapTx = await router.exactInput(params);
   console.log(`TX Hash: ${swapTx.hash}`);
   console.log('Waiting confirmation...');
 
@@ -142,5 +151,6 @@ async function main() {
 
 main().catch((err) => {
   console.error('\nSwap failed:', err.message);
+  console.error(err);
   process.exit(1);
 });
