@@ -9,6 +9,7 @@
     "check-balance": "node scripts/check-balance.js"
   },
   "dependencies": {
+    "axios": "^1.13.6",
     "dotenv": "^16.4.7",
     "ethers": "^6.13.4"
   }

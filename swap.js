@@ -65,8 +65,20 @@ Examples:
 
 // --- Build swap path ---
 function buildPath(tokenIn, tokenOut) {
-  // Direct path first; if both are stablecoins (non-EURe), direct works.
-  // For stablecoin <-> EURe, try direct. QuickSwap may route via WMATIC internally.
+  // Route USDT -> USDC -> EURe (better stablecoin liquidity)
+  // Route EURe -> USDC -> USDT
+  
+  const USDC_ADDRESS = config.TOKENS.USDC.address;
+  
+  if (tokenIn.symbol === 'USDT' && tokenOut.symbol === 'EURe') {
+    return [tokenIn.address, USDC_ADDRESS, tokenOut.address];
+  }
+  
+  if (tokenIn.symbol === 'EURe' && tokenOut.symbol === 'USDT') {
+    return [tokenIn.address, USDC_ADDRESS, tokenOut.address];
+  }
+  
+  // Direct path for all other cases (USDC <-> EURe, USDT <-> USDC)
   return [tokenIn.address, tokenOut.address];
 }
 
@@ -96,7 +108,7 @@ async function main() {
 
   const vault = new SwapperVault(vaultPassword);
   const secrets = vault.load();
-  const privateKey = secrets.wallet.privateKey;
+  const privateKey = secrets.wallet_private_key;
 
   // Connect
   const provider = new ethers.JsonRpcProvider(config.RPC_URL);
@@ -124,14 +136,7 @@ async function main() {
   const path = buildPath(tokenInConfig, tokenOutConfig);
 
   let amounts;
-  try {
-    amounts = await router.getAmountsOut(amountIn, path);
-  } catch {
-    // Try routing via WMATIC if direct pair has no liquidity
-    console.log('No direct pool, trying WMATIC route...');
-    path.splice(1, 0, config.WMATIC);
-    amounts = await router.getAmountsOut(amountIn, path);
-  }
+  amounts = await router.getAmountsOut(amountIn, path);
 
   const expectedOut = amounts[amounts.length - 1];
   const expectedOutFormatted = ethers.formatUnits(expectedOut, tokenOutConfig.decimals);
