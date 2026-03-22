@@ -31,13 +31,16 @@ node scripts/setup-vault.js
 export SWAPPER_VAULT_PASSWORD='ton_password_vault'
 
 # Dry-run (simulation)
-node swap.js --from USDT --to EURe --amount 10 --dry-run
+node bin/swap.js --from USDT --to EURe --amount 10 --dry-run
 
 # Swap réel 100 USDC vers EURe
-node swap.js --from USDC --to EURe --amount 100
+node bin/swap.js --from USDC --to EURe --amount 100
 
 # Swap 50 EURe vers USDT
-node swap.js --from EURe --to USDT --amount 50
+node bin/swap.js --from EURe --to USDT --amount 50
+
+# Ou via npm scripts
+npm run swap -- --from USDT --to EURe --amount 10 --dry-run
 ```
 
 ## Check Balance

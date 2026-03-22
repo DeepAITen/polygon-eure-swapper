@@ -2,8 +2,8 @@
 require('dotenv').config();
 const { ethers } = require('ethers');
 const axios = require('axios');
-const SwapperVault = require('./src/vault');
-const config = require('./src/config');
+const SwapperVault = require('../src/vault');
+const config = require('../src/config');
 
 const ERC20_ABI = [
   'function balanceOf(address) view returns (uint256)',

@@ -2,9 +2,9 @@
   "name": "polygon-eure-swapper",
   "version": "1.0.0",
   "description": "Swap USDT/USDC <> EURe on Polygon via LiFi (automatic best routing)",
-  "main": "swap.js",
+  "main": "bin/swap.js",
   "scripts": {
-    "swap": "node swap.js",
+    "swap": "node bin/swap.js",
     "setup-vault": "node scripts/setup-vault.js",
     "check-balance": "node scripts/check-balance.js"
   },
